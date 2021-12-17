@@ -1,5 +1,7 @@
 {
   "name": "AppInventario",
-  "integrations": {},
+  "integrations": {
+    "cordova": {}
+  },
   "type": "angular"
 }

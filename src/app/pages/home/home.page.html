@@ -1,0 +1,55 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title class="ion-text-center">
+      App Inventario
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="container">
+    <div color="primary" class="main-card">
+      <ion-grid>
+        <ion-row class="ion-justify-content-center">
+          <ion-col size="6">
+            <ion-card mode="ios" routerLink="/productos">
+              <ion-card-content>
+                <ion-row class="ion-justify-content-center">
+                  <ion-img src="assets/icon/gift.png"></ion-img>
+                </ion-row>
+                <ion-row class="ion-justify-content-center">
+                  <ion-text class="ion-text-center">Productos</ion-text>
+                </ion-row>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+          <ion-col size="6">
+            <ion-card mode="ios" routerLink="/escaner">
+              <ion-card-content>
+                <ion-row class="ion-justify-content-center">
+                  <ion-img src="assets/icon/mobile.png"></ion-img>
+                </ion-row>
+                <ion-row class="ion-justify-content-center">
+                  <ion-text class="ion-text-center">Escanear</ion-text>
+                </ion-row>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+  
+          <ion-col size="6">
+            <ion-card mode="ios" routerLink="/inventario">
+              <ion-card-content>
+                <ion-row class="ion-justify-content-center">
+                  <ion-img src="assets/icon/document.png"></ion-img>
+                </ion-row>
+                <ion-row class="ion-justify-content-center">
+                  <ion-text class="ion-text-center">Reporte</ion-text>
+                </ion-row>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+  </div>
+</ion-content>
