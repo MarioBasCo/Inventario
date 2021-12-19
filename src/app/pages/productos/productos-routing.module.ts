@@ -7,10 +7,6 @@ const routes: Routes = [
   {
     path: '',
     component: ProductosPage
-  },
-  {
-    path: 'inventario',
-    loadChildren: () => import('./../../modals/registro/registro.module').then( m => m.RegistroPageModule)
   }
 ];
 

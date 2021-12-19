@@ -1,14 +1,13 @@
 import { DbService } from './../../services/db.service';
-import { RegistroPage } from './../../modals/registro/registro.page';
 import { IProducto } from './../../interfaces/interfaces';
 import { Component, OnInit } from '@angular/core';
-import { ModalController } from '@ionic/angular';
-import { BarcodeScanner, BarcodeScannerOptions } from "@ionic-native/barcode-scanner/ngx";
+import { AlertController, ModalController } from '@ionic/angular';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { FileOpener } from '@ionic-native/file-opener/ngx';
 import { Platform } from '@ionic/angular';
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
+import { FormProductoComponent } from 'src/app/modals/form-producto/form-producto.component';
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 @Component({
@@ -23,31 +22,34 @@ export class ProductosPage implements OnInit {
     cantidad: 0
   };
   listaProductos: IProducto[] = [];
-  encodedData: any;
-  scannedBarCode: {};
-  barcodeScannerOptions: BarcodeScannerOptions;
 
   constructor(
     private modalCtrl: ModalController,
+    private alertController: AlertController,
     private serBD: DbService,
-    private scanner: BarcodeScanner,
     private plt: Platform,
     private fileOpener: FileOpener
   ) { }
 
   ngOnInit() {
+    this.cargarDatos();
+  }
+
+  cargarDatos(){
+    this.listaProductos = [];
     this.serBD.$getListSource.subscribe(list => {
       this.listaProductos = list;
     });
   }
 
-  async nuevoRegistro() {
+  async openModalForm() {
     const modal = await this.modalCtrl.create({
-      component: RegistroPage,
+      component: FormProductoComponent,
       componentProps: {
+        titulo: 'Registro',
         objProducto: this.objVacio
       },
-      cssClass: 'setting-modal',
+      cssClass: 'reg-modal',
       showBackdrop: true,
       backdropDismiss: false
     });
@@ -57,8 +59,15 @@ export class ProductosPage implements OnInit {
     const { data } = await modal.onDidDismiss();
 
     if (data) {
-      console.log(" retorna el del Modal: ", data);
-      this.serBD.grabar(data.objProducto, false);
+      const { codigo, nombre, cantidad } = data.objProducto;
+      let datosPro: IProducto = {
+        codigo,
+        nombre,
+        cantidad
+      }
+      console.log(" retorna el del Modal: ", datosPro);
+      this.serBD.grabar(datosPro, false);
+      //this.cargarDatos();
       this.limpiar();
     }
   }
@@ -68,44 +77,87 @@ export class ProductosPage implements OnInit {
     this.objVacio.nombre = '';
     this.objVacio.cantidad = 0;
   }
+  
+  async editar(item: IProducto){
+    const { id, codigo, nombre } = item; //destructuring para evitar la referencia al objeto
+    let objEditar: IProducto = {id, codigo, nombre};
 
-  /* generateBarCode(obj: any) {
-    const { id, codigo, nombre } = obj;
-    let textQr = {
-      id,
-      codigo,
-      nombre
+    const modal = await this.modalCtrl.create({
+      component: FormProductoComponent,
+      componentProps: {
+        titulo: 'Edición',
+        objProducto: objEditar
+      },
+      cssClass: 'reg-modal',
+      showBackdrop: true,
+      backdropDismiss: false
+    });
+
+    await modal.present();
+
+    const { data } = await modal.onDidDismiss();
+
+    if (data) {
+      const { id, codigo, nombre } = data.objProducto;
+      let datosPro: IProducto = {
+        id,
+        codigo,
+        nombre
+      }
+      console.log(" retorna el del Modal: ", JSON.stringify(datosPro));
+      this.serBD.grabar(datosPro, true);
     }
-    this.scanner.encode(this.scanner.Encode.TEXT_TYPE, textQr).then(
-        res => {
-          alert(res);
-          this.encodedData = res;
-        }, error => {
-          alert(error);
+    
+  }
+
+  async eliminar(item: any){
+    const alert = await this.alertController.create({
+      header: 'Confirmar Eliminación',
+      message: `¿Esta seguro de <strong>eliminar</strong> el producto: ${item.nombre} ?`,
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          handler: () => {
+            console.log('Confirm Cancel: blah');
+          }
+        }, {
+          text: 'Eliminar',
+          handler: () => {
+            console.log('Confirm Okay');
+            this.serBD.eliminar(item.id);
+          }
         }
-    );
-  } */
+      ]
+    });
+
+    await alert.present();
+  }
 
   generateBarCode(obj: any) {
     const { id, codigo, nombre } = obj; //destructuring del objeto
-    let textQr = { id, codigo, nombre }; //objeto con información que no cambia
+    let textQr: IProducto = { id, codigo, nombre }; //objeto con información que no cambia
 
     const docDefinition = {
-      pageSize: 'A4',
-      pageOrientation: 'portrait',
-      pageMargins: [20, 10, 40, 60],
+      header: {
+        margin: 10,
+        columns: [
+          {
+            margin: [10, 0, 0, 0],
+            text: `${textQr.codigo}\t${textQr.nombre}`,
+            style: 'header',
+            alignment: 'center'
+          }
+        ]
+      },
       content: [
-        { qr: `${textQr}`, fit: '150' },
+        this.numCodigosQR(JSON.stringify(textQr))
       ],
       styles: {
         header: {
           fontSize: 18,
           bold: true,
-          alignment: 'justify'
-        },
-        subheader: {
-          fontSize: 14
-        },
+        }
       }
     }
     const pdfDocGenerator = pdfMake.createPdf(docDefinition);
@@ -127,5 +179,21 @@ export class ProductosPage implements OnInit {
     } else {
       pdfDocGenerator.download();
     }
+  }
+
+  numCodigosQR(textQr: string){ //imprime 3 columas y 4 filas
+    let data = [];
+    for(let i=0; i<=3; i++){
+      data.push(
+        [{
+          columns: [
+            { qr: `${textQr}`, fit: '150' },
+            { qr: `${textQr}`, fit: '150' },
+            { qr: `${textQr}`, fit: '150' }
+          ],
+        },'\n']
+      );
+    }
+    return data;
   }
 }

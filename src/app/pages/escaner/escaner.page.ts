@@ -29,15 +29,10 @@ export class EscanerPage implements OnInit {
         !obj.hasOwnProperty('nombre') ) {
         alert("No se reconoce el producto");
       } else {
-        const { id, codigo, nombre } = obj;
-        let objProd: IProducto = {
-          id,
-          codigo,
-          nombre,
-          cantidad: 0
-        }
+        const { id, codigo, nombre } = obj; //Destructuring del objeto
+        let objProd: IProducto = { id, codigo, nombre };
 
-        this.serBD.grabar(objProd, true);
+        this.serBD.actualizarStock(objProd);
       }
     }).catch(err => {
       console.log('Error', err);

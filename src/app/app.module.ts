@@ -13,7 +13,7 @@ import { FileOpener } from '@ionic-native/file-opener/ngx';
   declarations: [AppComponent],
   entryComponents: [],
   imports: [
-    BrowserModule, 
+    BrowserModule,
     IonicModule.forRoot(), 
     AppRoutingModule
   ],

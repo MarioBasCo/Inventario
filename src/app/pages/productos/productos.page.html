@@ -10,35 +10,50 @@
 
 <ion-content>
   <ion-item lines="none">
-    <ion-button slot="end" fill="outline" (click)="nuevoRegistro()">
+    <ion-button slot="end" fill="outline" (click)="openModalForm()">
       <ion-icon name="add"></ion-icon>
       <ion-label>Nuevo</ion-label>
     </ion-button>
   </ion-item>
 
   <div class="ion-text-center">
-    <h2>
+    <h3>
       <strong>LISTADO DE PRODUCTOS</strong>
-    </h2>
+    </h3>
   </div>
 
-  <ion-grid>
-    <ion-row>
-      <ion-col size="auto"><b>ID</b></ion-col>
-      <ion-col><b>CÓDIGO</b></ion-col>
-      <ion-col><b>DESCRIPCIÓN</b></ion-col>
-      <ion-col><b>OPCIONES</b></ion-col>
-    </ion-row>
+  <ion-item lines="none" color="transparent">
+    <ion-note color="medium"><ion-icon name="information-circle"></ion-icon> Deslice cada item para ver las opciones</ion-note>
+  </ion-item>
 
-    <ion-row *ngFor="let obj of listaProductos">
-      <ion-col size="auto">{{obj.id}}</ion-col>
-      <ion-col>{{obj.codigo}}</ion-col>
-      <ion-col>{{obj.nombre}}</ion-col>
-      <ion-col class="ion-justify-content-center">
-        <ion-button (click)="generateBarCode(obj)">
-          <ion-icon name="qr-code"></ion-icon>
-        </ion-button>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+  <ion-list>
+    <ion-list-header>
+      <ion-label color="primary"><b>ID</b></ion-label>
+      <ion-label color="primary"><b>CÓDIGO</b></ion-label>
+      <ion-label color="primary"><b>DESCRIPCIÓN</b></ion-label>
+    </ion-list-header>
+    <ion-item-sliding *ngFor="let item of listaProductos">
+      <ion-item lines="full">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="auto">{{item.id}}</ion-col>
+            <ion-col>{{item.codigo}}</ion-col>
+            <ion-col>{{item.nombre}}</ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-item>
+
+      <ion-item-options side="end">
+        <ion-item-option color="transparent">
+          <ion-icon slot="icon-only" color="success" name="qr-code" (click)="generateBarCode(item)"></ion-icon>
+        </ion-item-option>
+        <ion-item-option color="transparent">
+          <ion-icon slot="icon-only" color="secondary" name="create" (click)="editar(item)"></ion-icon>
+        </ion-item-option>
+        <ion-item-option color="transparent" (click)="eliminar(item)">
+          <ion-icon slot="icon-only" color="danger" name="trash"></ion-icon>
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
 </ion-content>

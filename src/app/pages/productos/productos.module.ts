@@ -1,3 +1,4 @@
+import { FormProductoComponent } from './../../modals/form-producto/form-producto.component';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -8,6 +9,7 @@ import { ProductosPageRoutingModule } from './productos-routing.module';
 
 import { ProductosPage } from './productos.page';
 
+
 @NgModule({
   imports: [
     CommonModule,
@@ -15,6 +17,6 @@ import { ProductosPage } from './productos.page';
     IonicModule,
     ProductosPageRoutingModule
   ],
-  declarations: [ProductosPage]
+  declarations: [ProductosPage, FormProductoComponent]
 })
 export class ProductosPageModule {}

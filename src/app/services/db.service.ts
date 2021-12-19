@@ -48,13 +48,13 @@ export class DbService {
     let cadenaSql = " SELECT * FROM TB_PRODUCTO ";
 
     this.databaseObj.executeSql(cadenaSql, []).then((resp) => {
+      let datosBD = [];
       if (resp.rows.length > 0) {
-        let datosBD = [];
         for (var i = 0; i < resp.rows.length; i++) {
           datosBD.push(resp.rows.item(i));
         }
-        this.sendListSource(datosBD);
       }
+      this.sendListSource(datosBD);
     }).catch(e => {
       alert("Error al cargar Datos " + JSON.stringify(e));
     });
@@ -67,6 +67,7 @@ export class DbService {
       alert("Ingrese el Código");
       return;
     }
+    
     if (data.nombre.length === 0) {
       alert("Ingrese el nombre");
       return;
@@ -76,7 +77,8 @@ export class DbService {
       //editar
       cadenaSql = cadenaSql + " UPDATE TB_PRODUCTO ";
       cadenaSql = cadenaSql + " SET ";
-      cadenaSql = cadenaSql + " cantidad = cantidad + 1" ;
+      cadenaSql = cadenaSql + " codigo = '"+ data.codigo + "', " ;
+      cadenaSql = cadenaSql + " nombre = '"+ data.nombre + "'" ;
       cadenaSql = cadenaSql + " WHERE id=" + data.id;
     } else {
       //insertar
@@ -96,9 +98,21 @@ export class DbService {
     });
   }
 
+  actualizarStock(data: IProducto){
+    let cadenaSql = `UPDATE TB_PRODUCTO SET cantidad = cantidad + 1 WHERE id=${data.id} `;
+
+    this.databaseObj.executeSql(cadenaSql, [])
+    .then(() => {
+      alert(`El producto: ${data.nombre}, se añadió al inventario`);
+      this.cargarDatosBD();
+    }).catch(e => {
+      alert("Error al registrar: " + JSON.stringify(e));
+    });
+  }
+
   eliminar(id) {
-    let cadenaSql = " delete from TB_PRODUCTO ";
-    cadenaSql = cadenaSql + " where id=" + id;
+    let cadenaSql = ` DELETE FROM TB_PRODUCTO WHERE id = ${id} `;
+
     this.databaseObj.executeSql(cadenaSql, []).then(() => {
       alert("Se eliminó correctamente");
       this.cargarDatosBD();
